@@ -1,0 +1,24 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import LegalIdentity from '../../components/LegalIdentity.astro';
+import { CONTACT_EMAIL, LAST_UPDATED, SITE_NAMES } from '../../data/site-config';
+import { route } from '../../i18n/routes';
+import { displayDate } from '../../lib/format';
+import P from '../../data/params-2026.json';
+const lang = 'en';
+---
+<PageLayout title={`Contact ${SITE_NAMES[lang]}: a rate, a rule, the widget`} description="Write to UK Tax Code when a rate, a threshold or a tax code rule looks out of date, when a calculation seems wrong, or to embed a checker on your own website." lang={lang} noindex={true} breadcrumbs={[{ label: 'Contact' }]} showAuthor={false}>
+  <div class="prose prose-slate max-w-none">
+    <h1>Contact</h1>
+    <p>Email: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>. A person reads every message.</p>
+    <h2>A rate or a rule looks out of date</h2>
+    <p>Tell us the page and the figure and, if you have it, the link to the GOV.UK or HMRC page that says otherwise. Rates change each April and after each Budget; we read the source again, correct the parameter file and date the change.</p>
+    <h2>What we cannot do</h2>
+    <p>We are not HMRC, an accountant or a tax refund company. We cannot see your tax record, change your code, claim a refund or contact HMRC for you. Please do not send your National Insurance number, payslips, P60s, HMRC letters or any personal details. To check or correct your code, use <a href={P.sources.hmrc_check.url} rel="nofollow noopener" target="_blank">HMRC's online service</a> or the HMRC app.</p>
+    <h2>Using a checker on your own site</h2>
+    <p>Employers, unions, advice services and local news sites can show the tax code checker in an iframe at no cost: see the <a href={route('widget', lang)}>embed page</a>.</p>
+    <h2>Publisher</h2>
+    <LegalIdentity lang={lang} />
+    <p>Updated on <time datetime={LAST_UPDATED}>{displayDate(LAST_UPDATED, 'en-GB')}</time>.</p>
+  </div>
+</PageLayout>

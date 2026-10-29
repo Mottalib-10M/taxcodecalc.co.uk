@@ -1,0 +1,55 @@
+---
+/**
+ * Renders one page of `src/content/pages/`. Order (RECETTE §5, §9.3, §21): H1 and standfirst, the
+ * tool (first screen), the folded citable block, the page's second tool, then the body. FAQ, related
+ * pages, sources and author box come from PageLayout; the FAQ is shown and marked up from the same
+ * list (§7).
+ */
+import PageLayout from '../layouts/PageLayout.astro';
+import Clamp from './Clamp.astro';
+import Tool from './Tool.astro';
+import { route, hasRoute } from '../i18n/routes';
+import { label, groupLabel } from '../i18n/nav';
+import { t } from '../i18n/ui';
+import { pageById } from '../lib/guides';
+import { helpers } from '../lib/helpers';
+import P from '../data/params-2026.json';
+import { articleSchema, faqSchema, breadcrumbSchema, webPageSchema, webApplicationSchema } from '../lib/seo';
+import { AUTHOR_NAME } from '../data/site-config';
+import type { PageDef, ToolDef } from '../lib/guide-types';
+interface Props { page: PageDef }
+const { page } = Astro.props;
+const lang = 'en';
+const T = page.en;
+const ui = t(lang);
+const path = route(page.id, lang);
+const h = helpers(lang, true);
+const faqs = T.faqs(h);
+const parts = T.body(h).split(/<!--tool:([a-z0-9:-]+)(?:\|(\{.*?\}))?-->/);
+const jsonLd = [articleSchema({ title: T.h1, description: T.description, path, lang }), webPageSchema({ name: T.h1, description: T.description, path, lang }), breadcrumbSchema([{ name: ui.breadcrumbHome, path: route('home', lang) }, { name: T.nav, path }])];
+if (page.tool) jsonLd.push(webApplicationSchema({ name: T.h1, description: T.description, path, lang }));
+if (faqs.length) jsonLd.push(faqSchema(faqs, lang));
+const cardOf = (id: string) => pageById(id)?.en.card ?? (id === 'home' ? 'Type the code from your payslip: the tax-free pay behind it, what each letter means and the tax it takes.' : '');
+const related = page.related.filter((id) => hasRoute(id, lang)).map((id) => ({ href: route(id, lang), name: label(id, lang), description: cardOf(id) }));
+type SK = keyof typeof P.sources;
+const sources = page.sources.map((k) => ({ name: P.sources[k as SK].label.en, url: P.sources[k as SK].url }));
+const chunks: Array<{ html?: string; tool?: ToolDef }> = [];
+for (let i = 0; i < parts.length; i += 3) { chunks.push({ html: parts[i] }); if (parts[i + 1]) chunks.push({ tool: { kind: parts[i + 1], props: parts[i + 2] ? JSON.parse(parts[i + 2]) : undefined } }); }
+---
+<PageLayout title={T.title} description={T.description} lang={lang} jsonLd={jsonLd} faqs={faqs} related={related} sources={sources} breadcrumbs={[{ label: T.nav }]} dateEnHaut={false}>
+  <article>
+    <header class="mb-3">
+      <p class="kicker">{groupLabel(page.group)}</p>
+      <h1 class="mt-0 text-[1.75rem] font-bold text-navy-900 max-sm:leading-tight sm:text-3xl md:text-4xl">{T.h1}</h1>
+      {page.demarche && <p class="mt-1 text-xs font-medium text-navy-600" data-independant>{ui.independent}</p>}
+      <p class="mt-2 text-base text-navy-700 sm:text-lg">{T.intro}</p>
+    </header>
+    {page.tool && <div data-outil class="mb-4"><Tool tool={page.tool} primary={true} seedKey={page.id} /></div>}
+    <Clamp text={T.resume(h)} id={`clamp-${page.id}`} lang={lang} class="mb-3" />
+    {page.mini && <div class="mb-4"><Tool tool={page.mini} idPrefix="g" seedKey={`${page.id}-mini`} /></div>}
+    <p class="mb-8 text-sm text-navy-600">{ui.reviewedBy} <a href={route('about', lang)} class="underline hover:text-navy-900">{AUTHOR_NAME}</a> · <a href={route('editorial', lang)} class="underline hover:text-navy-900">{ui.editorialPolicy}</a> · <a href={route('method', lang)} class="underline hover:text-navy-900">{label('method')}</a></p>
+    <div class="prose prose-slate max-w-none">
+      {chunks.map((c, i) => c.html !== undefined ? <Fragment set:html={c.html} /> : <div class="not-prose"><Tool tool={c.tool!} idPrefix={`s${i}`} seedKey={`${page.id}-s${i}`} /></div>)}
+    </div>
+  </article>
+</PageLayout>

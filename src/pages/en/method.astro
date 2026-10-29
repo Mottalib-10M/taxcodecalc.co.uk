@@ -1,0 +1,40 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import { LAST_UPDATED } from '../../data/site-config';
+import { route } from '../../i18n/routes';
+import { breadcrumbSchema, articleSchema } from '../../lib/seo';
+import { helpers } from '../../lib/helpers';
+import { displayDate } from '../../lib/format';
+const lang = 'en';
+const h = helpers(lang);
+const Y = h.Y();
+const s = (k: Parameters<typeof h.src>[0], t: string) => h.src(k, t);
+const ex = h.taxPeriod('1257L', 'monthly', 3000, 1);
+---
+<PageLayout title="Method of UK Tax Code: HMRC's PAYE routines step by step" description="How UK Tax Code reads a tax code and works out the tax on each payslip: free pay, cumulative bands, the 50% limit, BR and D codes, emergency and expected codes." lang={lang} jsonLd={[articleSchema({ title: 'How the tax on each payslip is worked out', description: 'Method of UK Tax Code', path: route('method', lang), lang }), breadcrumbSchema([{ name: 'Home', path: route('home', lang) }, { name: 'Method', path: route('method', lang) }])]} breadcrumbs={[{ label: 'Method' }]}>
+  <header class="mb-6"><p class="kicker">Method</p><h1 class="mt-0 text-3xl font-bold text-navy-900 md:text-4xl">How the tax on each payslip is worked out</h1></header>
+  <div class="prose prose-slate max-w-none">
+    <p>Every page and calculator reads one parameter file, built from HMRC's and HM Treasury's published rates, read on {h.date(h.P.retrieved_at)}, each value with its source. The payroll calculation follows HMRC's <Fragment set:html={s('paye_spec', 'Specification for PAYE Tax Table Routines')} />, version 24.0 of February 2026, the document payroll software is built from. Automated tests check the engine against examples worked by hand from that text.</p>
+    <h2>1. Reading the code</h2>
+    <p>A code may start with S (Scottish rates) or C (Welsh rates), then hold either a number and a suffix letter (L, M, N, T), a K followed by a number, or one of BR, D0 to D3, NT and 0T. W1, M1, X or NONCUM at the end means the week 1 or month 1 basis. NT has no Scottish or Welsh version, and the emergency code has a single UK value without S or C (<Fragment set:html={s('gov_meaning', 'GOV.UK')} />).</p>
+    <h2>2. Free pay and additional pay</h2>
+    <p>For a number up to 500, the free pay for week 1 or month 1 is the number times ten plus nine, divided by 52 or 12 and rounded up to the next penny. A larger number is split into multiples of 500 and a remainder: each 500 is worth £96.16 a week or £416.67 a month, and the remainder is worked out as above. For code 1257 this gives {h.pence(h.freePay(1257, 12))} a month and {h.pence(h.freePay(1257, 52))} a week. For a K code the same figure is added to pay instead of taken off.</p>
+    <h2>3. Cumulative tax</h2>
+    <p>Pay to date minus free pay for the number of weeks or months gone gives taxable pay to date. The band thresholds for the period are the yearly bands times the period number divided by 52 or 12, taken to four decimal places; the tax on each full band is accrued the same way. The taxable pay, rounded down to the pound, is placed in its band and taxed: tax on the bands below plus the rate on the excess, rounded down to the penny. The tax on the payslip is the tax due to date minus the tax already paid. On £3,000 in month 1 with 1257L, this gives {h.pence(ex)}.</p>
+    <h2>4. The 50% limit</h2>
+    <p>Tax taken in one pay cannot exceed half of that pay, excluding payrolled benefits. With a cumulative code, the tax not taken is carried in the calculation and collected later if pay allows; any amount left at the end of the year is between the employee and HMRC (<Fragment set:html={s('gov_k', 'K codes on GOV.UK')} />).</p>
+    <h2>5. BR, D and NT codes, and the week 1 basis</h2>
+    <p>BR taxes the whole pay, rounded down to the pound, at the basic rate; D0 at the next rate up, D1 the one after (in Scotland SBR at {h.sc('scot').rates[1]}%, SD0 at {h.sc('scot').rates[2]}% up to SD3 at {h.sc('scot').rates[5]}%). NT takes no tax. On the week 1 or month 1 basis, each pay is taxed alone as if it were period 1, with no refund of earlier tax.</p>
+    <h2>6. Rates used</h2>
+    <p>{Y.label}: Personal Allowance {h.gbp(Y.personalAllowance)}, bands and rates for England, Northern Ireland, Scotland and Wales from the <Fragment set:html={s('employer_2627', 'rates and thresholds for employers')} /> and the specification's appendices. {h.Y('2027-28').label}: main rates from <Fragment set:html={s('ootlar_annex_a', 'Annex A of the Budget overview')} /> of 28 October 2026. The Scottish rates for that year are announced with the Scottish Budget on {h.date(h.Y('2027-28').scotExpected as string)} (<Fragment set:html={s('gov_scot_news', 'Scottish Government')} />); until then the calculators use the {Y.label} Scottish rates and say so.</p>
+    <h2>7. Expected codes and yearly gaps</h2>
+    <p>The right code checker starts from the Personal Allowance, cut by £1 for each £2 of income over {h.gbp(Y.incomeLimit)}, adds or removes {h.gbp(Y.marriageAllowance)} of Marriage Allowance, takes off the State Pension and company benefits and adds job expenses, then drops the last digit. A second source gets BR, or D0 and above when the main pay already reaches a higher band. The tax due for the year is compared with what the codes take on a monthly payroll. HMRC builds codes from its own records, which can hold items this estimate does not see: savings interest, rental income or an earlier underpayment.</p>
+    <h2>8. What the site does not do</h2>
+    <ul>
+      <li>It does not see your HMRC record or change your code: only HMRC can, through its <Fragment set:html={s('hmrc_check', 'online service')} /> or app.</li>
+      <li>It does not work out National Insurance, student loan or pension deductions, only Income Tax.</li>
+      <li>It does not keep anything you type: the calculators run in your browser.</li>
+    </ul>
+    <p>Method version of <time datetime={LAST_UPDATED}>{displayDate(LAST_UPDATED, 'en-GB')}</time>. A figure that looks wrong: <a href={route('contact', lang)}>contact</a>.</p>
+  </div>
+</PageLayout>

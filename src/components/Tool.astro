@@ -1,0 +1,34 @@
+---
+/**
+ * Renders one tool with its page defaults: the main tools (`decoder`, `payslip`, `rightcode`,
+ * `emergency`, `compare`, `kcode`) or `mini:<spec>` from `lib/mini-specs.ts`.
+ */
+import Decoder from './calc/Decoder';
+import PayslipCalc from './calc/PayslipCalc';
+import RightCode from './calc/RightCode';
+import EmergencyCalc from './calc/EmergencyCalc';
+import CompareCodes from './calc/CompareCodes';
+import KCodeCalc from './calc/KCodeCalc';
+import MiniSim from './calc/MiniSim';
+import { route, hasRoute, type Locale } from '../i18n/routes';
+import { getSpec, codeIndexOf } from '../lib/mini-specs';
+import type { ToolDef } from '../lib/guide-types';
+interface Props { tool: ToolDef; lang?: Locale; primary?: boolean; idPrefix?: string; seedKey?: string }
+const { tool, lang = 'en', primary = false, idPrefix } = Astro.props;
+const props = (tool.props ?? {}) as Record<string, any>;
+const kind = tool.kind;
+const mini = kind.startsWith('mini:') ? kind.slice(5) : null;
+const spec = mini ? getSpec(mini) : null;
+const href = spec?.ctaPage === 'home' ? route('home', lang) : spec?.ctaPage && hasRoute(spec.ctaPage, lang) ? route(spec.ctaPage, lang) : undefined;
+const numDefaults: Record<string, number> = {};
+for (const [k, v] of Object.entries(props)) { if (typeof v === 'number') numDefaults[k] = v; else if (mini && (k === 'code' || k === 'code2') && typeof v === 'string') numDefaults[k] = codeIndexOf(v); }
+const method = route('method', lang);
+const ip = (d: string) => idPrefix ?? (primary ? d : `${d}2`);
+---
+{kind === 'decoder' && <Decoder client:load idPrefix={ip('dc')} code={props.code} pay={props.pay} primary={primary} methodHref={method} />}
+{kind === 'payslip' && <PayslipCalc client:load idPrefix={ip('ps')} code={props.code} pay={props.pay} freq={props.freq} period={props.period} primary={primary} methodHref={method} />}
+{kind === 'rightcode' && <RightCode client:load idPrefix={ip('rc')} region={props.region} job1={props.job1} job2={props.job2} sp={props.sp} bik={props.bik} expenses={props.expenses} ma={props.ma} current={props.current} primary={primary} methodHref={method} />}
+{kind === 'emergency' && <EmergencyCalc client:load idPrefix={ip('em')} freq={props.freq} pay={props.pay} start={props.start} periods={props.periods} emergency={props.emergency} correct={props.correct} primary={primary} methodHref={method} />}
+{kind === 'compare' && <CompareCodes client:load idPrefix={ip('cc')} a={props.a} b={props.b} pay={props.pay} freq={props.freq} primary={primary} methodHref={method} />}
+{kind === 'kcode' && <KCodeCalc client:load idPrefix={ip('kc')} k={props.k} pay={props.pay} freq={props.freq} primary={primary} methodHref={method} />}
+{mini && <MiniSim client:load kind={mini} href={href} defaults={numDefaults} primary={primary} idPrefix={idPrefix ?? (primary ? 'p' : 'm')} />}

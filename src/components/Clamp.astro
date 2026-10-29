@@ -1,0 +1,22 @@
+---
+/**
+ * Folded standfirst (RECETTE §26): ONE <p> in the HTML, whole; the screen shows the first sentence
+ * and the rest sits in a hidden <span> of the same <p>, unfolded by a checkbox, with no JavaScript.
+ * Never a <details>: check-seo must find the 120-word block in the first 30 % of the page (§21).
+ */
+import { t } from '../i18n/ui';
+import type { Locale } from '../i18n/routes';
+interface Props { text: string; id: string; lang: Locale; sentences?: number; class?: string }
+const { text, id, lang, sentences = 1, class: cls = '' } = Astro.props;
+// Cut between sentences: final punctuation, space, then a capital letter (or ¿ ¡ in Spanish).
+// The text may hold links (state names): cut only outside tags.
+// Pas de coupe après un ordinal ou une abréviation (« Seit 1. April », « Art. 142 », « z. B. ») : eu-rent-indexation, 2026-10-24.
+const parts = text.split(/(?<=[.!?])(?<!(?:^|[\s(])(?:\d{1,2}|[a-zäöü]|Art|Abs|Nr|Ziff|bzw|ca|vgl|ggf|inkl|zzgl|Dr|Mr|Mrs|Ms|St|No|art|nr|n|pp|vs|cf|cfr|ecc|etc|Sig|Avv|Prof|z\. ?B|d\. ?h|u\. ?a|e\.g|i\.e)\.)\s+(?=[\p{Lu}¿¡<])(?![^<]*>)/u);
+const head = parts.slice(0, sentences).join(' ').trim();
+const rest = parts.slice(sentences).join(' ').trim();
+---
+<div class={`clamp ${cls}`}>
+  {rest && <input type="checkbox" id={id} class="clamp-toggle" />}
+  <p class="text-navy-800"><Fragment set:html={head} />{rest && <span class="clamp-rest"> <Fragment set:html={rest} /></span>}</p>
+  {rest && <label for={id} class="clamp-more">{t(lang).readMore}</label>}
+</div>

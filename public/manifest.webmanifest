@@ -1,0 +1,21 @@
+{
+ "name": "UK Tax Code",
+ "short_name": "UK Tax Code",
+ "description": "Decode your UK tax code: allowance behind 1257L, BR, K, D0 or emergency W1/M1, tax per pay period on HMRC's cumulative method, and whether your code looks right.",
+ "start_url": "/en/",
+ "display": "standalone",
+ "background_color": "#ffffff",
+ "theme_color": "#1D3F6E",
+ "icons": [
+  {
+   "src": "/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  }
+ ]
+}

@@ -1,0 +1,26 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import { AUTHOR_NAME, CONTACT_EMAIL, LAST_UPDATED, SITE_NAMES } from '../../data/site-config';
+import { route } from '../../i18n/routes';
+import { displayDate } from '../../lib/format';
+const lang = 'en';
+---
+<PageLayout title={`Editorial policy of ${SITE_NAMES[lang]}: sources and corrections`} description="Which HMRC and GOV.UK texts UK Tax Code relies on, how rates and the payroll method are checked, which sources it refuses and how a mistake is corrected and dated." lang={lang} noindex={true} breadcrumbs={[{ label: 'Editorial policy' }]} showAuthor={false}>
+  <div class="prose prose-slate max-w-none">
+    <h1>Editorial and corrections policy</h1>
+    <p>People use these pages to decide whether their tax code is right and how much tax to expect on a payslip. A wrong rate or rule can make them chase a refund that is not due, or miss one that is, so every figure points back to the text it was read on.</p>
+    <h2>Who is responsible</h2><p>{AUTHOR_NAME}, reachable at <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</p>
+    <h2>What we read</h2>
+    <ul>
+      <li>HMRC's Specification for PAYE Tax Table Routines, which payroll software follows, and the P9X notice of tax codes for each new year;</li>
+      <li>the rates and thresholds for employers for each tax year, and HMRC's table of Income Tax rates and allowances;</li>
+      <li>GOV.UK guidance on tax codes, emergency codes, K codes, Marriage Allowance, company benefits, the State Pension, overpayments and underpayments, and the HMRC online services;</li>
+      <li>HM Treasury's Budget overview of tax legislation and rates, and the Scottish Government's announcements of the Scottish Budget.</li>
+    </ul>
+    <h2>Sources we refuse</h2><p>Accountancy firms, refund companies, payroll vendors' marketing and forums never supply a figure here. A rule we cannot find in an HMRC or government text is not published as a rule. A rate that is not set yet is written as not published, with the date it is expected.</p>
+    <h2>Review cycle</h2><p>Rates and thresholds are re-read after each Budget, each Scottish and Welsh budget and before each 6 April; the tax code guidance at least every quarter. Announced changes are shown as coming, with their date, never as current.</p>
+    <h2>Corrections</h2>
+    <ol><li>We open the source again.</li><li>We correct the parameter file and add an automated test for the case.</li><li>The site rebuilds and every page shows the new date.</li></ol>
+    <h2>Independence</h2><p>No firm, payroll provider or government body pays for or reviews what is published here, and the site carries no affiliate link. See also the <a href={route('method', lang)}>method page</a>. Version of <time datetime={LAST_UPDATED}>{displayDate(LAST_UPDATED, 'en-GB')}</time>.</p>
+  </div>
+</PageLayout>

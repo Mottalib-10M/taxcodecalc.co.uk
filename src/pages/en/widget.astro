@@ -1,0 +1,24 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import { SITE_URL } from '../../data/site-config';
+import { route } from '../../i18n/routes';
+import { breadcrumbSchema } from '../../lib/seo';
+import { t } from '../../i18n/ui';
+const lang = 'en';
+const code = `<iframe src="${SITE_URL}/embed/tax-code-checker/" title="Tax code checker" width="100%" height="720" style="border:0;max-width:1000px" loading="lazy"></iframe>`;
+const code2 = `<iframe src="${SITE_URL}/embed/emergency-tax-calculator/" title="Emergency tax refund calculator" width="100%" height="720" style="border:0;max-width:1000px" loading="lazy"></iframe>`;
+---
+<PageLayout title="Embed the free tax code checker on your own website" description="Put the tax code checker or the emergency tax calculator on your website: one iframe, no sign-up, no tracking, no cookie and no cost, updated with each year's rates." lang={lang} noindex={true} jsonLd={[breadcrumbSchema([{ name: t(lang).breadcrumbHome, path: route('home', lang) }, { name: 'Embed', path: route('widget', lang) }])]} breadcrumbs={[{ label: 'Embed' }]} showAuthor={false}>
+  <header class="mb-6">
+    <h1 class="text-3xl font-bold text-navy-900 md:text-4xl">Embed a tax code checker</h1>
+    <p class="mt-3 text-lg text-navy-700">For employers, unions, advice services and local news sites that help people read their payslips.</p>
+  </header>
+  <div class="prose prose-slate max-w-none">
+    <h2>Tax code checker</h2>
+    <pre class="overflow-x-auto rounded-lg bg-navy-900 p-4 text-sm text-white"><code>{code}</code></pre>
+    <h2>Emergency tax refund calculator</h2>
+    <pre class="overflow-x-auto rounded-lg bg-navy-900 p-4 text-sm text-white"><code>{code2}</code></pre>
+    <p>Conditions: keep the credit line under the frame visible and use the tool as it is, without warranty. When rates change, the embedded checker follows after our next check. Nothing your visitors type reaches us and the frame sets no cookie. Each frame states that the site is independent and not HMRC. Questions: <a href={route('contact', lang)}>contact</a>.</p>
+  </div>
+  <div class="mt-8 overflow-hidden rounded-xl border border-navy-200"><iframe src="/embed/tax-code-checker/" title="Tax code checker" width="100%" height="720" style="border:0" loading="lazy"></iframe></div>
+</PageLayout>

@@ -1,0 +1,106 @@
+---
+/**
+ * Home (pillar page): the tax code decoder first, then four key figures, every letter of a code with
+ * its meaning, the bands each code applies, the tools for the usual problems and every page of the
+ * site. Figures come from params-2026.json through the engine (lib/helpers.ts).
+ */
+import PageLayout from '../layouts/PageLayout.astro';
+import Tool from './Tool.astro';
+import Clamp from './Clamp.astro';
+import Sources from './Sources.astro';
+import { route } from '../i18n/routes';
+import { PAGES } from '../lib/guides';
+import { GROUPS_ORDER, groupLabel } from '../i18n/nav';
+import { helpers } from '../lib/helpers';
+import { LAST_UPDATED, AUTHOR_NAME } from '../data/site-config';
+import { displayDate } from '../lib/format';
+import { faqSchema, webApplicationSchema, websiteSchema, organizationSchema } from '../lib/seo';
+const lang = 'en';
+const h = helpers(lang, true);
+const Y = h.Y();
+const R = h.R;
+const link = (id: string, text: string) => (PAGES.some((p) => p.id === id) ? `<a href="${route(id, lang)}">${text}</a>` : text);
+const groups = GROUPS_ORDER.map((g) => ({ g, items: PAGES.filter((p) => p.group === g).map((p) => ({ href: route(p.id, lang), name: p.en.nav, text: p.en.card })) }));
+const edges = h.bandEdges('ruk');
+const sEdges = h.bandEdges('scot');
+const ex = h.taxYear('1257L', 32000);
+
+const title = 'Tax Code Checker: What Your UK Tax Code Means and Takes';
+const description = 'Type your tax code: the tax-free pay behind it, what each letter means, tax per payslip by HMRC’s method, emergency and K codes, and the code you should be on.';
+const faqs = [
+  { q: 'What does the tax code 1257L mean?', a: `1257L is the code for someone with one job or pension and the standard Personal Allowance of ${h.gbp(Y.personalAllowance)}. The number is the allowance without its last digit, and L says nothing else changes it. On a monthly payroll it gives about ${h.pence(h.freePay(1257, 12))} of tax-free pay each month, and the rest is taxed at the bands of the year.` },
+  { q: 'How do I check my tax code?', a: `Your code is on every payslip, on your P60 and on any P2 coding notice. HMRC’s online service and app show the code for each job or pension and explain how it was worked out. If the code looks wrong, update your income, benefits or expenses there; HMRC sends the corrected code to you and your employer within ${R.codeChangeWorkingDays} working days.` },
+  { q: 'Why has my tax code changed?', a: 'HMRC changes a code when what it knows about you changes: a new job, a second job or pension, company benefits such as a car or medical insurance, job expenses you claimed, Marriage Allowance, the State Pension starting, untaxed income, or tax owed from an earlier year being collected. The letter or notice HMRC sends lists each addition and deduction.' },
+  { q: 'What is an emergency tax code?', a: `A code ending in W1, M1 or X, or marked NONCUM on the payslip. Each pay is taxed on its own as if it were the first of the year, without the allowance of earlier weeks or months. It is usual after starting a job without a P45. HMRC normally sends a proper code within ${R.waitAfterNewJobDays} days, and any overpaid tax comes back through payroll.` },
+  { q: 'What does a K in my tax code mean?', a: `A K code means your untaxed income or benefits are more than your allowance, so instead of tax-free pay, an amount is added to your pay before tax. ${R.kExample.code} adds ${h.gbp(R.kExample.add)} over the year. To protect your income, your employer or pension provider cannot take more than half of each pay in tax under a K code.` },
+  { q: 'What do BR, D0 and D1 mean?', a: `They tax every pound from that job or pension at one rate, with no allowance: BR at ${h.flat('BR')}%, D0 at ${h.flat('D0')}% and D1 at ${h.flat('D1')}%. They are used on a second job or pension when the allowance is already used on the main one. In Scotland the same idea gives SBR, SD0 up to SD3.` },
+  { q: 'Is this site part of HMRC?', a: 'No. It is an independent site published by Radif Partners. It cannot see your tax record or change your code, and nothing you type leaves your browser. It applies the method and the rates HMRC publishes for payroll software, shows the result and its working, and sends you to your HMRC online account when something needs correcting.' },
+];
+const jsonLd = [websiteSchema(lang), organizationSchema(lang), webApplicationSchema({ name: 'Tax code checker', description, path: route('home', lang), lang }), faqSchema(faqs, lang)];
+const resume = `A UK tax code tells your employer or pension provider how much of your pay is tax-free and which rates to apply to the rest. The number is the tax-free amount without its last digit: 1257L gives ${h.gbp(Y.personalAllowance)} a year, the standard Personal Allowance for ${Y.label}. The letter says why: L for the standard allowance, M or N for Marriage Allowance received or given, T when other calculations are part of the allowance, K when an amount is added to pay instead. A prefix S or C applies the Scottish or Welsh rates, and W1, M1 or X means an emergency basis where each pay is taxed alone. BR, D0, D1 and NT tax all, more or none of the pay. On ${h.gbp(32000)} a year paid monthly, 1257L takes ${h.pence(ex)} over the year by HMRC's cumulative method. The checker above decodes any code, and the tools below work out each payslip, an emergency refund and the code your situation points to.`;
+const letterRows = [
+  ['L', 'Standard Personal Allowance', link('1257l-tax-code', '1257L')],
+  ['M', 'Marriage Allowance received (10% of the partner’s allowance)', link('m-and-n-tax-codes', '1383M')],
+  ['N', 'Marriage Allowance transferred to the partner', link('m-and-n-tax-codes', '1131N')],
+  ['T', 'Other calculations included in the allowance', link('t-tax-code', '1100T')],
+  ['K', 'Untaxed income above the allowance: an amount is added to pay', link('k-tax-code', 'K475')],
+  ['0T', 'No allowance on this job; normal bands', link('0t-tax-code', '0T')],
+  ['BR', `All at the basic rate, ${h.flat('BR')}%`, link('br-tax-code', 'BR')],
+  ['D0, D1', `All at ${h.flat('D0')}% or ${h.flat('D1')}%`, link('d0-tax-code', 'D0')],
+  ['NT', 'No tax taken on this income', link('nt-tax-code', 'NT')],
+  ['S, C', 'Scottish or Welsh rates', link('s1257l-tax-code', 'S1257L') + ', ' + link('c1257l-tax-code', 'C1257L')],
+  ['W1, M1, X', 'Emergency basis: each pay taxed on its own', link('w1-m1-x-tax-codes', '1257L M1')],
+];
+---
+<PageLayout title={title} description={description} lang={lang} jsonLd={jsonLd} faqs={faqs} breadcrumbs={[]}>
+  <header class="mb-3">
+    <h1 class="mt-0 text-[1.75rem] font-bold text-navy-900 max-sm:leading-tight sm:text-3xl md:text-4xl">Tax code checker</h1>
+    <p class="mt-2 text-base text-navy-700 sm:text-lg">Type the code from your payslip or HMRC letter: what it means, the tax-free pay behind it and the tax it takes.</p>
+  </header>
+  <div data-outil class="mb-4"><Tool tool={{ kind: 'decoder', props: { code: '1257L', pay: 32000 } }} primary={true} seedKey="home" /></div>
+  <Clamp text={resume} id="clamp-home" lang={lang} class="mb-3" />
+  <p class="mb-6 text-sm text-navy-600">Rates and rules checked on <time datetime={LAST_UPDATED}>{displayDate(LAST_UPDATED, 'en-GB')}</time> · {AUTHOR_NAME} · <a href={route('method', lang)} class="underline hover:text-navy-900">How the tax is worked out</a> · <a href={route('about', lang)} class="underline hover:text-navy-900">About this site</a></p>
+
+  <dl class="not-prose mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4" data-chiffres>
+    <div class="rounded-xl border border-navy-100 bg-white p-3"><dt class="text-xs text-navy-600">Personal Allowance {Y.label}</dt><dd class="text-2xl font-bold text-navy-900">{h.gbp(Y.personalAllowance)}</dd></div>
+    <div class="rounded-xl border border-navy-100 bg-white p-3"><dt class="text-xs text-navy-600">Emergency code</dt><dd class="text-2xl font-bold text-navy-900">{Y.emergencyCode} M1</dd></div>
+    <div class="rounded-xl border border-navy-100 bg-white p-3"><dt class="text-xs text-navy-600">PAYE threshold a month</dt><dd class="text-2xl font-bold text-navy-900">{h.gbp(Y.payeThreshold.month)}</dd></div>
+    <div class="rounded-xl border border-navy-100 bg-white p-3"><dt class="text-xs text-navy-600">Most tax under a K code</dt><dd class="text-2xl font-bold text-navy-900">{Y.maxRate}% of pay</dd></div>
+  </dl>
+
+  <div class="prose prose-slate max-w-none">
+    <h2>Every letter of a tax code</h2>
+    <p>A code is read from left to right: an optional S or C for Scotland or Wales, then a number and a letter, or a two-letter code that replaces both, then an optional emergency marker. HMRC's guidance lists the letters; each one opens its own page with a calculator.</p>
+    <Fragment set:html={h.table(['Letters', 'Meaning', 'Example'], letterRows, `Meanings read on ${h.src('gov_meaning', 'GOV.UK, what your tax code means')}.`, ['l', 'l', 'l'])} />
+
+    <h2>Which bands a code applies in {Y.label}</h2>
+    <p>After the tax-free pay, England and Northern Ireland tax income at {h.sc('ruk').rates.join(', ')}%: the basic rate up to {h.gbp(edges[0])} of gross pay with the standard allowance, the higher rate up to {h.gbp(edges[1])}, and the additional rate above. Wales uses the same figures with its own rates of 10p in each band. Scotland has six bands, from the starter rate of {h.sc('scot').rates[0]}% to the top rate of {h.sc('scot').rates[5]}% above {h.gbp(sEdges[4])}. The <Fragment set:html={link('tax-code-2026-27', 'page on this year')} /> lists every threshold, and the <Fragment set:html={link('tax-code-2027-28', 'page on next year')} /> what the Budget of 28 October 2026 set for April 2027.</p>
+  </div>
+  <div class="mb-6"><Tool tool={{ kind: 'mini:bands' }} idPrefix="h1" /></div>
+  <div class="prose prose-slate max-w-none">
+    <h2>Tax on your next payslip</h2>
+    <p>Payroll software does not divide your yearly tax by twelve. With a cumulative code it adds up your pay since 6 April, takes off the free pay for the same number of weeks or months, works out the tax due to date and subtracts what you have already paid. That is why a refund can appear on a payslip after a code goes up, and why a month with a bonus costs more. The <Fragment set:html={link('tax-per-payslip', 'payslip calculator')} /> shows each step for any period.</p>
+  </div>
+  <div class="mb-6"><Tool tool={{ kind: 'mini:month', props: { code: '1257L', pay: 2500 } }} idPrefix="h2" /></div>
+  <div class="prose prose-slate max-w-none">
+    <h2>Emergency codes, second jobs and pensions</h2>
+    <p>Most wrong codes come from a few situations: a new job without a P45, a second job or pension that took the allowance, the State Pension starting, a company car added late, or tax owed from an earlier year. The <Fragment set:html={link('check-my-tax-code', 'right code checker')} /> takes your incomes and gives the code they point to and the gap over the year; the <Fragment set:html={link('emergency-tax-code', 'emergency tax calculator')} /> shows how much comes back and on which payslip.</p>
+  </div>
+  <div class="mb-6"><Tool tool={{ kind: 'mini:emergency' }} idPrefix="h3" /></div>
+  <div class="prose prose-slate max-w-none">
+    <h2>When the code is wrong</h2>
+    <p>Only HMRC can change a code; your employer has to use the one HMRC sends. Sign in to the {h.src('hmrc_check', 'Check your Income Tax service')} or the HMRC app, check each job, pension, benefit and expense, and update what is wrong. HMRC then sends the new code to you and your employer within {R.codeChangeWorkingDays} working days. The <Fragment set:html={link('wrong-tax-code', 'wrong code page')} /> covers each case and the <Fragment set:html={link('tax-refund-wrong-code', 'refund page')} /> how the money comes back.</p>
+
+    <h2>Every page of the site</h2>
+  </div>
+  <div class="not-prose grid gap-6 sm:grid-cols-2" data-sommaire>
+    {groups.map(({ g, items }) => (
+      <section><h3 class="mb-2 text-lg font-semibold text-navy-900">{groupLabel(g)}</h3><ul class="space-y-2 text-sm">{items.map((c) => <li><a href={c.href} class="font-medium text-accent-700 underline">{c.name}</a><span class="block text-navy-700">{c.text}</span></li>)}</ul></section>
+    ))}
+  </div>
+  <div class="prose prose-slate mt-8 max-w-none">
+    <h2>How this site works</h2>
+    <p>Every rate, band and allowance comes from one parameter file, read on HMRC's Specification for PAYE Tax Table Routines, the rates and thresholds for employers, the P9X notice, the Budget overview of 28 October 2026 and GOV.UK's tax code guidance, each with its source and date. The calculators follow HMRC's payroll method to the penny and run in your browser: nothing you type is sent or stored. The site sells nothing, recommends no firm and sends you to HMRC's own services. The <a href={route('method', lang)}>method page</a> explains each calculation.</p>
+    <Sources lang={lang} keys={['paye_spec', 'employer_2627', 'p9x_2026', 'gov_meaning', 'gov_emergency', 'gov_k', 'gov_update', 'ootlar_annex_a', 'gov_scot', 'hmrc_check']} />
+  </div>
+</PageLayout>
