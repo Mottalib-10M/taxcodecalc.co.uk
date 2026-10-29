@@ -1,6 +1,6 @@
 /** Configuration centrale du site (générée par new-site.py). */
-export const SITE_URL = "https://uk-tax-code.example";
-export const SITE_NAMES: Record<string, string> = {"en": "UK Tax Code"};
+export const SITE_URL = "https://taxcodecalc.co.uk";
+export const SITE_NAMES: Record<string, string> = {"en": "Tax Code Calc"};
 // Partie du nom affichée en couleur dans l'en-tête (RECETTE §10.3), « » pour aucune.
 export const BRAND_ACCENT = "";
 export const LANG_TAGS: Record<string, string> = {"en": "en-GB"};
@@ -18,7 +18,7 @@ export const AUTHOR_DESC: Record<string, string> = {"en": "Radif Partners reads 
  *  themes reellement traites par le site, pas une liste de mots-cles : un sujet
  *  declare ici sans page qui le couvre est une declaration fausse. */
 export const KNOWS_ABOUT: Record<string, string[]> = {"en": ["PAYE tax codes", "Specification for PAYE Tax Table Routines", "Emergency tax codes W1, M1 and X", "K codes and the 50% regulatory limit", "Scottish and Welsh rates of income tax", "Marriage Allowance tax codes"]};
-export const CONTACT_EMAIL = "contact@uk-tax-code.example";
+export const CONTACT_EMAIL = "contact@taxcodecalc.co.uk";
 export const THEME_COLOR = '#1D3F6E';
 export const LOGO_SYMBOL = 'TC';
 export const BING_VERIFY_CODE = '';

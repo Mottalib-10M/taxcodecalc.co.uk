@@ -3,4 +3,4 @@ Allow: /
 
 Disallow: /*?*
 
-Sitemap: https://uk-tax-code.example/sitemap-index.xml
+Sitemap: https://taxcodecalc.co.uk/sitemap-index.xml

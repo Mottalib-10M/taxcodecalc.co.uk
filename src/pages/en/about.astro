@@ -8,7 +8,7 @@ import { PAGES } from '../../lib/guides';
 const lang = 'en';
 const n = PAGES.length + 1;
 ---
-<PageLayout title="Radif Partners, publisher of UK Tax Code: who we are" description="Who publishes UK Tax Code, where every rate, band and tax code rule comes from, what the checkers do with what you type and what the site never sells." lang={lang} jsonLd={[organizationSchema(lang), profilePageSchema({ path: route('about', lang), lang }), breadcrumbSchema([{ name: 'Home', path: route('home', lang) }, { name: 'About', path: route('about', lang) }])]} breadcrumbs={[{ label: 'About' }]}>
+<PageLayout title="Radif Partners, publisher of Tax Code Calc: who we are" description="Who publishes Tax Code Calc, where every rate, band and tax code rule comes from, what the checkers do with what you type and what the site never sells." lang={lang} jsonLd={[organizationSchema(lang), profilePageSchema({ path: route('about', lang), lang }), breadcrumbSchema([{ name: 'Home', path: route('home', lang) }, { name: 'About', path: route('about', lang) }])]} breadcrumbs={[{ label: 'About' }]}>
   <header class="mb-6"><p class="kicker">About</p><h1 class="mt-0 text-3xl font-bold text-navy-900 md:text-4xl">Who is behind {SITE_NAMES[lang]}</h1></header>
   <div class="prose prose-slate max-w-none">
     <div class="not-prose mb-6"><p class="text-lg font-semibold text-navy-900">{AUTHOR_NAME}</p><p class="text-navy-700">{AUTHOR_ROLE[lang]}</p></div>
